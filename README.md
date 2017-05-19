@@ -62,7 +62,7 @@ Response:
       "Registrations": {
         "Registration": {
           "RegistrationName": "ARIES_ID",
-          "RegistrationValue": "2000027440"
+          "RegistrationValue": "XXXXXXXXXX"
         }
       },
       "Names": {
@@ -119,25 +119,25 @@ Response:
         "Address": [
           {
             "@Type": "Matching",
-            "@Value": "336 KOGWONTON ST UNIT 114 HENRY'S HOUSE",
+            "@Value": "336 FAKE ST UNIT 200 HENRY'S HOUSE",
             "LocationElement": [
               {
                 "Type": "HouseNameNumber",
-                "Value": "336 KOGWONTON ST"
+                "Value": "336 FAKE ST"
               },
               {
                 "Type": "HouseNameNumber",
-                "Value": "UNIT 114 HENRY'S HOUSE"
+                "Value": "UNIT 200 HENRY'S HOUSE"
               }
             ]
           },
           {
             "@Type": "Mailing Address",
-            "@Value": "336 KOGWONTON ST SITKA AK",
+            "@Value": "336 FAKE ST SITKA AK",
             "LocationElement": [
               {
                 "Type": "Address Line",
-                "Value": "336 KOGWONTON ST"
+                "Value": "336 FAKE ST"
               },
               {
                 "Type": "City",
@@ -151,12 +151,12 @@ Response:
           },
           {
             "@Type": "Physical Address",
-            "@Value": "UNIT 114 HENRY'S HOUSE ANCHORAGE AK 99501",
+            "@Value": "UNIT 200 HENRY'S HOUSE ANCHORAGE AK 99501",
             "LocationElement": [
               {
                 "Type": "Address Line",
                 "Value": "UNIT 114"
-              },
+              },200
               {
                 "Type": "Address Line",
                 "Value": "HENRY'S HOUSE"
