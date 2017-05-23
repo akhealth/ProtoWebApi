@@ -1,4 +1,4 @@
-﻿using AKRestAPI.Models;
+﻿using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -36,10 +36,6 @@ namespace AKRestAPI
 
             // Add framework services.
             services.AddMvc();
-
-            // Dependency injection
-            services.AddSingleton<PeopleContext>(new PeopleContext(Configuration.GetSection("SoapEndpoint").Value));
-            services.AddScoped<IPeopleRepository, PeopleRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,6 +44,8 @@ namespace AKRestAPI
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
             app.UseCors("CorsPolicy");
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
             app.UseMvc();
         }
     }
