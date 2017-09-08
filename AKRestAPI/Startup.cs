@@ -5,9 +5,22 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace AKRestAPI
 {
+
+    // Just adding a helper method here
+    public static class Util
+    {
+        public static String GetEnv(String key)
+        {
+            // Most shells need double quotes around string values. Docker doesn't play well with quotes. This seems like the easiest way to deal for now.
+            // Replace all double quotes with nothing
+            return Environment.GetEnvironmentVariable(key).Replace("\"", "");
+        }
+    }
+
     public class Startup
     {
         public Startup(IHostingEnvironment env)
@@ -39,7 +52,8 @@ namespace AKRestAPI
             services.AddMvc();
 
             // Dependency injection
-            services.AddSingleton<PeopleContext>(new PeopleContext(Configuration.GetSection("SoapEndpoint").Value));
+            var soap_endpoint = AKRestAPI.Util.GetEnv("SoapEndpoint");
+            services.AddSingleton<PeopleContext>(new PeopleContext(soap_endpoint));
             services.AddScoped<IPeopleRepository, PeopleRepository>();
         }
 
@@ -51,7 +65,19 @@ namespace AKRestAPI
             app.UseCors("CorsPolicy");
             app.UseDefaultFiles();
             app.UseStaticFiles();
-            app.UseMvc();
+            app.UseMvc(routes =>
+                {
+                    routes.MapRoute(
+                        name: "sql",
+                        template: "{controller=Sql}/{action=Index}"
+                    );
+                     routes.MapRoute(
+                        name: "pg",
+                        template: "{controller=Pg}/{action=Index}"
+                    );
+                }  
+            );
+
         }
     }
 }
