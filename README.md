@@ -1,44 +1,51 @@
-## REST API For AK MCI
+# Prototype
 
-A .NET Core Web API application to support searching for Medicaid applicants in various backend systems. This is a prototype application that will asssit the ARIES product team in its initial procurement.
+An ASP.NET Core 2.0 web application that supports searching for Medicaid applicants.
+This is a prototype application that will assist the ARIES product team in its initial procurement.
 
-## Usage
+This project primarily consists of a REST API for the Alaska MCI SOAP service and a web front-end.
+It also consists of Proof Of Concept for SQL Server and Postgres connections.
 
-To run this app on your local machine:
-* Install .NET Core and VS Code with the C# extension.
-* Open the `AKRestAPI` folder in VS Code
-* If prompted, select *Yes* to the Warn message "Required assets to build and debug are missing from. Add them?"
-* If prompted, select *Restore* to the Info message "There are unresolved dependencies".
-* Open the integrated terminal (View > Integrated terminal)
-* At the terminal prompt, run: `dotnet run`
-* App should be available at `http://localhost:5000/mci/people`
+## Environment
 
-To run a Docker image, first build the image:
+This app relies on `ENV` variables for configuration. Copy the example file and customize.
 
-```bash
-~$ docker build -t {username}/akrestapi -f docker/Dockerfile .
+```sh
+cd AKRestAPI
+cp .env.example.bash .env
+source .env
 ```
 
-Then run it:
+**Note**: `.env.example.bash` and `.env.example.ps1` already has correct values for the `docker-compose` setup.  Edit `.env` if you have to.
+
+## Running locally
+
+We prefer using Docker locally. You can run the application with the `dotnet` CLI if you wish, but you're on your own for SQL Server and Postgres.
 
 ```bash
-~$ docker run -p 5000:5000 -d {username}/akrestapi
+docker-compose build
+docker-compose up -d
+./sql-seed/seed-local-databases.sh
 ```
+**Note**: The SQL Server image requires 4G of RAM. You'll probably have to increase this limit in Docker settings.
 
-You should now be able to access the API at: `http://localhost:5000/mci/people`
+### Docker on Windows
+
+Docker for Windows runs linux containers by default, and this works well.  "Windows Containers" would be more performant, but will will not work out-of-the-box.
+
+We include a `.env.example.ps1` for Powershell.  To seed your database change the extension of `seed-local-databases.sh` to `.ps1` and run it in Powershell.
 
 ## Running Tests
 
-You can run tests by doing the following from the main project directory:
-
 ```bash
-~$ dotnet test AKRestAPI.Tests/AKRestAPI.Tests.csproj
+cd AKRestAPI.Tests
+dotnet test
 ```
 
-## Sample calls and responses
+## App URLs
 
-To search by name, invoke the API thusly:
+- SOAP/MCI: http://localhost:5000/mci/people/findByName?firstName=Greg&lastName=Allen
+- SQL Server: http://localhost:5000/sql 
+- Postgres: http://localhost:5000/pg 
 
-```
-127.0.0.1:5000/mci/people/findByName?firstName=Greg&lastName=Allen
-```
+**Note:** you can access SQL Server and MCI while on AK VPN. You _cannot_ access Postgres on VPN.
