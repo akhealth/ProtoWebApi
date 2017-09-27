@@ -72,8 +72,8 @@ namespace AKRestAPI
                         template: "{controller=Sql}/{action=Index}"
                     );
                      routes.MapRoute(
-                        name: "pg",
-                        template: "{controller=Pg}/{action=Index}"
+                        name: "aries",
+                        template: "{controller=Aries}/{action=Index}"
                     );
                 }  
             );

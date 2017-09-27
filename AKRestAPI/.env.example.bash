@@ -12,4 +12,3 @@ export SqlQuery="SELECT * FROM people;"
 
 # Postgres connection
 export PgConnectionString="Server=postgres;User Id=postgres;Database=18FDatabase"
-export PgQuery="SELECT * FROM People LIMIT 42;"

@@ -27,6 +27,10 @@ docker-compose build
 docker-compose up -d
 ./sql-seed/seed-local-databases.sh
 ```
+
+- If you make changes to the app, reload it with `docker-compose build web && docker-compose up -d web`.
+- Follow logs with `docker-compose logs -f`.
+
 **Note**: The SQL Server image requires 4G of RAM. You'll probably have to increase this limit in Docker settings.
 
 ### Docker on Windows
@@ -46,6 +50,6 @@ dotnet test
 
 - SOAP/MCI: http://localhost:5000/mci/people/findByName?firstName=Greg&lastName=Allen
 - SQL Server: http://localhost:5000/sql 
-- Postgres: http://localhost:5000/pg 
+- Postgres: http://localhost:5000/aries 
 
 **Note:** you can access SQL Server and MCI while on AK VPN. You _cannot_ access Postgres on VPN.
