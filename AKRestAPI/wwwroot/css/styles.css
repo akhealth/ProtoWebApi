@@ -1,0 +1,66 @@
+#results {
+    margin: -5rem 0 1em 0;
+    display: none;
+}
+    #results h1 {
+        font-family: Verdana;
+        font-size: 14px;
+    }
+#result-list {
+    font-family: Verdana;
+    font-size: 11px;
+}
+    #result-list th {
+        color: #333;
+    }
+        #result-list th::before {
+            content: "▶";
+            font-size: .75rem;
+            color: #33a;
+            margin-right: 0.25rem;
+        }
+    #result-list td {
+        padding: 3px;
+        border: 0;
+    }
+fieldset fieldset {
+    width: 80%;
+    clear: left;
+    margin: 0;
+    font-size: 12px;
+}
+    fieldset input {
+        width: 40%;
+        font-size: 12px;
+        height: 18px;
+    }
+label {
+    display: block;
+    float: left;
+    width: 60%;
+    margin-top: 0;
+}
+    label::after {
+        content: ": "
+    }
+#loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #999;
+    opacity: 0.5;
+    display: none;
+}
+#spinner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -25px;
+    margin-top: -20px;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    font-size: 10px;
+}

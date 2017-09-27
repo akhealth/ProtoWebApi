@@ -1,66 +1,65 @@
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MCI Search</title>
+    <title>ARIES/EIS Search</title>
     <link rel="stylesheet" href="css/uswds.css">
-    <style>
-      #results {
-        margin: 0 1em;
-      }
-      .result {
-        margin-top: 2em;
-        padding: 1em;
-        background-color: lightgray;
-      }
-      .result strong {
-        font-size: 1.5em;
-      }
-      .result ul {
-        
-      }
-      #name-first-field {
-        width: 48%;
-        float: left;
-      }
-      #name-last-field {
-        width: 48%;
-        margin-left: 4%;
-        float: left;
-      }
-    </style>
-  </head>
-  <body class="layout-demo">
-  
-  <div class="usa-overlay"></div>
-  <main id="main-content">
-    
-    <section class="usa-section">
-      <div class="usa-grid">
-        <h1>MCI Search</h1>
-        <form id="search" method="get" action="#">
-          <fieldset>
-            <fieldset id="name-first-field">
-              <label>First Name</label>
-              <input type="text" name="name-first" id="name-first">
-            </fieldset>
-            <fieldset id="name-last-field">
-              <label>Last Name</label>
-              <input type="text" name="name-last" id="name-last">
-            </fieldset>
-          </fieldset>
-          <input type="submit" class="usa-button usa-button-big" value="Search">
-        </form>
-      </div>
-    </section>
-    <section id="results">
-    </section>
-  </main>
-  <footer class="usa-footer usa-footer-medium" role="contentinfo">
-  </footer>
-  <script src="js/uswds.min.js"></script>
-  <script src="js/jquery-3.2.1.min.js"></script>
-  <script src="js/functions.js"></script>
-  </body>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body class="layout-demo">
+    <div id="loading">
+        <div id="spinner"><img src="img/loader.gif" alt="Loading..." width="16" height="11"></div>
+    </div>
+    <div class="usa-overlay"></div>
+    <main id="main-content">
+
+        <section class="usa-section">
+            <div class="usa-grid">
+                <h1>ARIES/EIS Search</h1>
+                <form id="search" method="get" action="#">
+                    <fieldset>
+                        <fieldset id="name-first-field">
+                            <label>First</label>
+                            <input type="text" name="name-first" id="name-first" required>
+                        </fieldset>
+                        <fieldset id="name-last-field">
+                            <label>Last</label>
+                            <input type="text" name="name-last" id="name-last" required>
+                        </fieldset>
+                    </fieldset>
+                    <input type="submit" class="usa-button usa-button-big" value="Search">
+                </form>
+            </div>
+        </section>
+        <section id="results">
+            <h1>Search Results</h1>
+            <table id="result-list">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Client ID</th>
+                        <th>Date of Birth</th>
+                        <th>Program</th>
+                        <th>Case/Application #</th>
+                        <th>Case/Application Status</th>
+                        <th>Case Action</th>
+                        <th>EIS ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <footer class="usa-footer usa-footer-medium" role="contentinfo">
+    </footer>
+    <script src="js/uswds.min.js"></script>
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/functions.js"></script>
+</body>
+
 </html>
