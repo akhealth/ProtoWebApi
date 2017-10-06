@@ -22,6 +22,40 @@
     #result-list td {
         padding: 3px;
         border: 0;
+        cursor: pointer;
+    }
+.record-detail {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    height: 500px;
+    width: 500px;
+    margin-top: -250px;
+    margin-left: -250px;
+    background-color: #fff;
+    padding: 1rem;
+    text-align: left;
+    border-radius: 5px; 
+    -moz-border-radius: 5px; 
+    -webkit-border-radius: 5px; 
+    border: 2px solid #000000;
+}
+    .record-detail .span {
+        padding: 5px;
+        border-radius: 5px;
+        color: #000;
+        background-color: #fff;
+        position:relative;
+        top:50%;
+    }
+    .record-detail .registration {
+        width: 48%;
+        float: left;
+        border: 1px solid #999;
+        background-color: #eee;
+        margin: 1%;
+        padding: 4%;
     }
 fieldset fieldset {
     width: 80%;

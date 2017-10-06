@@ -2,9 +2,116 @@
 /*jslint browser: true*/
 /*global  $*/
 
+/*
+ TODO
+- Generate the ARIES IDs using MCIData's content, instead of building it up earlier.
+- Hide info DIVs by moving them on and off screen, instead of toggling visibility. 
+*/
+
+// Define the protocol, domain, and port for our request. If this is being deployed
+// locally, use the local machine. Otherwise, use the staging URL (thus forcing HTTPS).
+if (window.location.origin.search("localhost") > -1) {
+    var MCIEndpoint = window.location.origin;
+}
+else {
+    var MCIEndpoint = "https://protowebapi-staging.azurewebsites.net";
+}
+var ARIESEndPoint = "https://protowebapi-staging.azurewebsites.net";
+
+// Append detailed ARIES information to the MCI records.
+function GetARIESRecords(AriesIDs, MCIData, callback) {
+
+    // Query ARIES for information about these results.
+    var AriesURL = ARIESEndPoint + "/aries?ids=" + AriesIDs.join(",");
+
+    $.getJSON(AriesURL, function (AriesData) {
+
+        // Merge our ARIES data into our MCI results (if there are any).
+        if(AriesData.length > 0) {
+            for (AriesRecord of AriesData) {
+                for (var MCIRecord of MCIData) {
+                    for (var Registration of MCIRecord.Registrations) {
+                        if (AriesRecord.indv_id == Registration.ID) {
+
+                            // Append the ARIES case information to this person's record.
+                            Registration.IndividualID = AriesRecord.app_num;
+                            Registration.ApplicationStatus = AriesRecord.application_status_cd;
+
+                            // Stop searching.
+                            break;
+
+                        }
+                    }
+                }
+            }
+        }
+    })
+    .always(function() {
+        callback(MCIData);
+    });
+
+}
+
+// Send records to the browser.
+function DisplayRecords(MCIData) {
+    // Inject our results into the DOM.
+    for (var MCIRecord of MCIData) {
+
+        // The row in the search results.
+        var TableHTML = '<tr data-virtualid="' + MCIRecord.VirtualID + '">';
+        TableHTML += "<td>" + MCIRecord.Name + "</td>";
+        TableHTML += "<td>" + MCIRecord.DateOfBirth + "</td>";
+        TableHTML += "<td>" + MCIRecord.SSN + "</td>";
+        TableHTML += "</tr>";
+
+        // The detailed information, available upon clicking.
+        var DetailsHTML = '<div class="record-detail" id="record-' + MCIRecord.VirtualID + '">';        
+        DetailsHTML += "<h1>" + MCIRecord.Name + "</h1>";
+        DetailsHTML += MCIRecord.DateOfBirth + "<br>";
+        if (MCIRecord.SSN != "") {
+            DetailsHTML += MCIRecord.SSN + "<br>";
+        }
+
+        for (var Registration of MCIRecord.Registrations) {
+            DetailsHTML += '<div class="registration">' +
+                "<li>Individual ID: " + Registration.IndividualID + "</li>";
+            $.each(Registration, function (key, value) {
+                DetailsHTML += "<li>" + key + ": " + value + "</li>";
+            });
+            DetailsHTML += "</div>";
+        }
+        DetailsHTML += "</div>";
+
+        $("#result-list > tbody:last-child").append(TableHTML);
+        $("#result-details").append(DetailsHTML);
+    }
+
+    // Remove the spinner overlay.
+    $("#loading").hide();
+
+    // Reveal the results.
+    $("#results").show();
+
+    // When a record is selected, show details about it.
+    $("#result-list tbody tr").on("click", function() {
+        $("#loading").show();
+        $("#record-" + $(this).attr("data-virtualid")).toggle();
+    });
+
+    return true;
+
+}
+
+
 $(document).ready(function () {
 
     $("#search").submit(function (event) {
+
+        // Clear any prior results from the results table.
+        $("#result-list td").remove();
+
+        // Show a spinner while data is being loaded.
+        $("#loading").show();
 
         // Fetch the search terms.
         var name = {};
@@ -22,14 +129,8 @@ $(document).ready(function () {
         }
 
         // Query the URL, encoding the first and last names as URL fragments.
-        var url = "http://protowebapi-development.azurewebsites.net/mci/people/findByName?firstName=" +
+        var url = MCIEndpoint + "/mci/people/findByName?firstName=" +
             encodeURIComponent(name.first) + "&lastName=" + encodeURIComponent(name.last);
-
-        // Clear any prior results from the results table.
-        $("#result-list td").remove();
-
-        // Show a spinner while data is being loaded.
-        $("#loading").show();
 
         $.get(url, function (data) {
 
@@ -46,21 +147,20 @@ $(document).ready(function () {
 
                 var result = {
                     Name: null,
-                    clientID: null,
+                    VirtualID: null,
                     DateOfBirth: null,
-                    Program: null,
-                    CaseNumber: null,
-                    CaseStatus: null,
-                    CaseAction: null,
-                    EISID: null
+                    Registrations: []
                 };
 
                 // Name
-                result.Name = person.FirstName + ""  + person.LastName;
+                result.Name = person.FirstName + " " + person.LastName;
 
                 // Date of birth
                 result.DateOfBirth = person.DateOfBirth.substring(5,7) + "/" +
                     person.DateOfBirth.substring(8,10) + "/" + person.DateOfBirth.substring(0,4);
+
+                // VirtualID
+                result.VirtualID = person.VirtualId;
 
                 // List all registration IDs.
                 $.each(person.Registrations.Registration, function (j, registration) {
@@ -70,25 +170,16 @@ $(document).ready(function () {
                         registration = person.Registrations.Registration;
                     }
 
-                    // Indicate whether application has an EIS record.
-                    if (registration.RegistrationName == "EIS_ID") {
-                        result.EISID = registration.RegistrationValue;
-                    }
-                    else {
-                        result.EISID = "N/A";
-                    }
+                    // Turn the registration information into a temporary object, and append it to our
+                    // registration information.
+                    tmp = {};
+                    tmp.System = registration.RegistrationName.replace("_ID", "");
+                    tmp.ID = registration.RegistrationValue;
+                    result.Registrations.push(tmp);
 
-                    // If there's a non-empty ARIES ID, indicate s/he's in ARIES.
-                    if (registration.RegistrationName == "ARIES_ID" && registration.RegistrationValue != "") {
-                        
-                        result.clientID = registration.RegistrationValue;
-
-                        // MAGI Medicaid is the only program listed in ARIES, so we know the program.
-                        result.Program = "MAGI Medicaid";
-                        
-                        // Add this to our list of ARIES IDs.
+                    // If we have an ARIES ID, add it to our list of ARIES IDs.
+                    if (registration.RegistrationName == "ARIES_ID") {
                         AriesIDs.push(registration.RegistrationValue);
-
                     }
 
                 });
@@ -98,96 +189,16 @@ $(document).ready(function () {
 
             });
 
-            // Query ARIES for information about these results.
-            var AriesURL = "http://protowebapi-development.azurewebsites.net/aries?ids=" + AriesIDs.join(",");
-            $.getJSON(AriesURL, function (AriesData) {
-
-                // Merge our ARIES data into our MCI results (if there are any).
-
-                // Create a blank array where we can track which ARIES IDs (unique people) we have
-                // already matched. We'll use that to build up an array of additional cases for each
-                // person (e.g., a person's case #2, case #3, etc.), which we'll merge back in at
-                // the end.
-                var MatchedRecords = [];
-                var DuplicateRecords = [];
-
-                if(AriesData.length > 0) {
-                    // Test data, for returning multiple ARIES records for a single person.
-                    //AriesData = $.parseJSON('[{"app_num":"T12345678","application_status_cd":"DI","indv_id":2400000003},{"app_num":"T87654321","application_status_cd":"FG","indv_id":2400000003}]');
-                    for (AriesRecord of AriesData) {
-                        for (var i of MCIData) {
-                            if (AriesRecord.indv_id == i.clientID) {
-                                
-                                // If we've already seen this ARIES ID, make a copy of it and
-                                // append the ARIES case information.
-                                if ($.inArray(String(i.clientID), MatchedRecords) >= 0)
-                                {
-
-                                    // Make a copy of -- NOT a reference to -- i.
-                                    var MovedRecord = $.extend({}, i);
-
-                                    MovedRecord.CaseNumber = AriesRecord.app_num;
-                                    MovedRecord.CaseStatus = AriesRecord.application_status_cd;
-                                    DuplicateRecords.push(MovedRecord);
-
-                                }
-
-                                else {
-                                    
-                                    // Append the ARIES case information to this person's record.
-                                    i.CaseNumber = AriesRecord.app_num;
-                                    i.CaseStatus = AriesRecord.application_status_cd;
-
-                                    // Record that we have seen this ARIES ID.
-                                    MatchedRecords.push(String(i.clientID));
-
-                                }
-
-                                // Stop searching.
-                                break;
-
-                            }
-                        }
-                    }
-
-                    // If we found any individual with more than one case, merge the additional
-                    // cases into our list of matched recors.
-                    if (DuplicateRecords.length > 0) {
-                        $.merge(MCIData, DuplicateRecords);
-                    }
-
-                }
-
-                // Inject our results into the DOM.
-                for (var MCIRecord of MCIData) {
-
-                    var html = "<tr>";
-                    $.each(MCIRecord, function(key, val) {
-                        if (key == "clientID") {
-                            val = "<a href=\"https://uat.myaries.alaska.gov/wp/ControllerServlet?PAGE_ID=IQISU&ACTION=ClickOnLink&cin=" +
-                                val + "&CS=Y&token=Random&FWPOPUP=N&WF_NAV_ID=CS\">" +
-                                val + "</a>";
-                        }
-                        if (val == null) {
-                            val = " ";
-                        }
-                        html += "<td>" + val + "</td>";
-                    });
-                    html += "</tr>";
-
-                    $("#result-list > tbody:last-child").append(html);
-                }
-
-                // Remove the spinner overlay.
-                $("#loading").hide();
-
-                // Reveal the results.
-                $("#results").show();
-
+            // Add details to every ARIES record.
+            GetARIESRecords(AriesIDs, MCIData, function(SupplementedMCIData) {
+                // Send data to the browser.
+                DisplayRecords(SupplementedMCIData);
             });
 
-            });
+        });
 
         return false;
+
     });
+
 });
