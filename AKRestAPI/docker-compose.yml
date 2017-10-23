@@ -10,7 +10,6 @@ services:
       - SqlConnectionString
       - SqlQuery
       - PgConnectionString
-      - PgQuery
 
   sqlserver:
     image: "microsoft/mssql-server-linux"

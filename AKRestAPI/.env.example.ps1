@@ -10,4 +10,3 @@ $env:SqlQuery="SELECT * FROM people;"
 
 # Postgres connection
 $env:PgConnectionString="Server=postgres;User Id=postgres;Database=18FDatabase"
-$env:PgQuery="SELECT * FROM People LIMIT 42;"
