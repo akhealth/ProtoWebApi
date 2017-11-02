@@ -45,11 +45,3 @@ We include a `.env.example.ps1` for Powershell.  To seed your database change th
 cd AKRestAPI.Tests
 dotnet test
 ```
-
-## App URLs
-
-- SOAP/MCI: http://localhost:5000/mci/people/findByName?firstName=Greg&lastName=Allen
-- SQL Server: http://localhost:5000/sql 
-- Postgres: http://localhost:5000/aries 
-
-**Note:** you can access SQL Server and MCI while on AK VPN. You _cannot_ access Postgres on VPN.
