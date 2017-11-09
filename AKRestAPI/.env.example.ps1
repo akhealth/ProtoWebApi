@@ -11,5 +11,5 @@ $env:SqlQuery="SELECT * FROM people;"
 # Postgres connection
 $env:PgConnectionString="Server=postgres;User Id=postgres;Database=18FDatabase"
 
-# EIS Web Service
+# EIS Web Service, note the trailing slash
 $env:EISEndpoint="https://hss18fpoc-test.soa.alaska.gov/AE_Interface/hes18f01svc/1/"

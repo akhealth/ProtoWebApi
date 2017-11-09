@@ -32,6 +32,9 @@ namespace AKRestAPI.Controllers
             XmlDocument xml_doc = new XmlDocument();
             xml_doc.LoadXml(result);
             string json_result = JsonConvert.SerializeXmlNode(xml_doc);
+
+            if (json_result.Contains("Client not found"))
+              return new ContentResult() { Content = "Not Found", StatusCode = 404 };
             
             EISResult = json_result;
         }
