@@ -2,7 +2,7 @@
 export ASPNETCORE_ENVIRONMENT="Development"
 
 # SOAP endpoint
-export SoapEndpoint="https://esbtest.dhss.alaska.gov/MCIPersonService/PersonService.svc"
+export SoapEndpoint=""
 export SoapHttpBasicUser=""
 export SoapHttpBasicPass=""
 
@@ -14,4 +14,4 @@ export SqlQuery="SELECT * FROM people;"
 export PgConnectionString="Server=postgres;User Id=postgres;Database=18FDatabase"
 
 # EIS Web Service, note the trailing slash
-export EISEndpoint="https://hss18fpoc-test.soa.alaska.gov/AE_Interface/hes18f01svc/1/"
+export EISEndpoint=""

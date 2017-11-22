@@ -31,7 +31,6 @@ The ARIES IDs come from the MCI
 - Actually in the Mainframe
 - Exposed by an on-prem HTTP-based web service
 - *Available over VPN* but had a certificate warning
-- https://hss18fpoc-test.soa.alaska.gov/AE_Interface/hes18f01svc/1/0600093208
 - Our API wrapper: http://localhost:5000/eis?id=0600093208
 
 The `0600` number is the only parameter in that request

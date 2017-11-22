@@ -5,7 +5,6 @@ using System.Xml;
 using Newtonsoft.Json;
 
 // EIS Web Service exists on-prem in Alaska. This controller acts as a pass-through from the front-end to the hybrid connection.
-// The AK HTTPAPI: https://hss18fpoc-test.soa.alaska.gov/AE_Interface/hes18f01svc/1/0600093208
 // Requests to this controller pass in `id`: http://localhost:5000/eis?id=0600093208
 namespace AKRestAPI.Controllers
 {
