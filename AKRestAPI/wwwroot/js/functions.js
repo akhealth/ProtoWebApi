@@ -2,12 +2,6 @@
 /*jslint browser: true*/
 /*global  $*/
 
-/*
- TODO
-- Generate the ARIES IDs using MCIData's content, instead of building it up earlier.
-- Hide info DIVs by moving them on and off screen, instead of toggling visibility. 
-*/
-
 // Define the protocol, domain, and port for our request. If this is being deployed
 // locally, use the local machine. Otherwise, use the staging URL (thus forcing HTTPS).
 if (window.location.origin.search("localhost") > -1) {
@@ -17,6 +11,7 @@ else {
     var MCIEndpoint = "https://protowebapi-staging.azurewebsites.net";
 }
 var ARIESEndPoint = "https://protowebapi-staging.azurewebsites.net";
+var EISEndPoint = "https://protowebapi-staging.azurewebsites.net";
 
 // Append detailed ARIES information to the MCI records.
 function GetARIESRecords(AriesIDs, MCIData, callback) {
@@ -28,7 +23,7 @@ function GetARIESRecords(AriesIDs, MCIData, callback) {
 
         // Merge our ARIES data into our MCI results (if there are any).
         if(AriesData.length > 0) {
-            for (AriesRecord of AriesData) {
+            for (var AriesRecord of AriesData) {
                 for (var MCIRecord of MCIData) {
                     for (var Registration of MCIRecord.Registrations) {
                         if (AriesRecord.indv_id == Registration.ID) {
@@ -52,6 +47,39 @@ function GetARIESRecords(AriesIDs, MCIData, callback) {
 
 }
 
+// Append detailed EIS information to the MCI records.
+function GetEISRecords(MCIData, callback) {
+
+    // Iterate through all of our MCI results.
+    for (var MCIRecord of MCIData) {
+
+        // If there is a known EIS record.
+        if (MCIRecord.EISID === undefined) {
+
+            // Query EIS for information about this result.
+            var EISURL = EISEndPoint + "/eis?ids=" + MCIRecord.EISID;
+            
+            // Send a query, but only retrieve the HTTP status code, which is all we need.
+            $.ajax(EISURL, {
+                type: "GET",
+                statusCode: {
+                    200: function (response) {
+                        MCIRecord.InEIS = true;
+                    },
+                    404: function (response) {
+                        MCIRecord.InEIS = false;
+                    }
+                }
+            });
+
+        }
+
+    }
+    
+    callback(MCIData);
+
+}
+
 // Send records to the browser.
 function DisplayRecords(MCIData) {
     // Inject our results into the DOM.
@@ -68,7 +96,7 @@ function DisplayRecords(MCIData) {
         var DetailsHTML = '<div class="record-detail" id="record-' + MCIRecord.VirtualID + '">';        
         DetailsHTML += "<h1>" + MCIRecord.Name + "</h1>";
         DetailsHTML += MCIRecord.DateOfBirth + "<br>";
-        if (MCIRecord.SSN != "") {
+        if (MCIRecord.SSN !== "") {
             DetailsHTML += MCIRecord.SSN + "<br>";
         }
 
@@ -132,68 +160,77 @@ $(document).ready(function () {
         var url = MCIEndpoint + "/mci/people/findByName?firstName=" +
             encodeURIComponent(name.first) + "&lastName=" + encodeURIComponent(name.last);
 
-        $.get(url, function (data) {
+        $.ajax({
+            url: url,
+            success: function (data) {
 
-            // We'll build up a list of ARIES IDs, to query ARIES for more information.
-            var AriesIDs = [];
+                // We'll build up a list of ARIES IDs, to query ARIES for more information.
+                var AriesIDs = [];
 
-            // We'll build up a list of results to iterate through and display.
-            var MCIData = [];
+                // We'll build up a list of results to iterate through and display.
+                var MCIData = [];
 
-            // Iterate through the returned names and list them all.
-            $.each(data, function (i, val) {
+                // Iterate through the returned names and list them all.
+                $.each(data, function (i, val) {
 
-                var person = val.SearchResponsePerson;
+                    var person = val.SearchResponsePerson;
 
-                var result = {
-                    Name: null,
-                    VirtualID: null,
-                    DateOfBirth: null,
-                    Registrations: []
-                };
+                    var result = {
+                        Name: null,
+                        VirtualID: null,
+                        DateOfBirth: null,
+                        Registrations: []
+                    };
 
-                // Name
-                result.Name = person.FirstName + " " + person.LastName;
+                    // Name
+                    result.Name = person.FirstName + " " + person.LastName;
 
-                // Date of birth
-                result.DateOfBirth = person.DateOfBirth.substring(5,7) + "/" +
-                    person.DateOfBirth.substring(8,10) + "/" + person.DateOfBirth.substring(0,4);
+                    // Date of birth
+                    result.DateOfBirth = person.DateOfBirth.substring(5,7) + "/" +
+                        person.DateOfBirth.substring(8,10) + "/" + person.DateOfBirth.substring(0,4);
 
-                // VirtualID
-                result.VirtualID = person.VirtualId;
+                    // VirtualID
+                    result.VirtualID = person.VirtualId;
 
-                // List all registration IDs.
-                $.each(person.Registrations.Registration, function (j, registration) {
+                    // List all registration IDs.
+                    $.each(person.Registrations.Registration, function (j, registration) {
 
-                    // If there's just one registration, it's not an object, and is handled differently.
-                    if (!$.isPlainObject(registration)) {
-                        registration = person.Registrations.Registration;
-                    }
+                        // If there's just one registration, it's not an object, and is handled differently.
+                        if (!$.isPlainObject(registration)) {
+                            registration = person.Registrations.Registration;
+                        }
 
-                    // Turn the registration information into a temporary object, and append it to our
-                    // registration information.
-                    tmp = {};
-                    tmp.System = registration.RegistrationName.replace("_ID", "");
-                    tmp.ID = registration.RegistrationValue;
-                    result.Registrations.push(tmp);
+                        // Turn the registration information into a temporary object, and append it to our
+                        // registration information.
+                        var tmp = {};
+                        tmp.System = registration.RegistrationName.replace("_ID", "");
+                        tmp.ID = registration.RegistrationValue;
+                        result.Registrations.push(tmp);
 
-                    // If we have an ARIES ID, add it to our list of ARIES IDs.
-                    if (registration.RegistrationName == "ARIES_ID") {
-                        AriesIDs.push(registration.RegistrationValue);
-                    }
+                        // If we have an ARIES ID, add it to our list of ARIES IDs.
+                        if (registration.RegistrationName == "ARIES_ID") {
+                            AriesIDs.push(registration.RegistrationValue);
+                        }
 
+                    });
+
+                    // Save this result to our list.
+                    MCIData.push(result);
+                    
                 });
 
-                // Save this result to our list.
-                MCIData.push(result);
+                // Add ARIES, EIS details to every MCI record.
+                GetARIESRecords(AriesIDs, MCIData, function(MCIData) {
+                    GetEISRecords(MCIData, function(MCIData) {
+                        // Send data to the browser.
+                        DisplayRecords(MCIData);
+                    });
+                });
+            },
 
-            });
-
-            // Add details to every ARIES record.
-            GetARIESRecords(AriesIDs, MCIData, function(SupplementedMCIData) {
-                // Send data to the browser.
-                DisplayRecords(SupplementedMCIData);
-            });
+            error: function() {
+                alert("Azure returned an error. Please reload the page and try again.");
+            }
 
         });
 
