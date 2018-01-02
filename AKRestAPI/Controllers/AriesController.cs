@@ -71,5 +71,13 @@ namespace AKRestAPI.Controllers
 
     }
 
+    public string Headers() {
+      string http_headers = "";
+      foreach (var kv in Request.Headers)
+        http_headers += kv.ToString() + Environment.NewLine;
+        
+      return http_headers;
+    }
+
   }
 }
