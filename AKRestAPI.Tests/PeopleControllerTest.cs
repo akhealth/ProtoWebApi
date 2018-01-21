@@ -71,7 +71,7 @@ namespace AKWebAPI.Tests
         }
     }
 
-    // Repositiory class for testing.
+    // Repository class for testing.
     public class TestPeopleRepository : IPeopleRepository
     {
 
