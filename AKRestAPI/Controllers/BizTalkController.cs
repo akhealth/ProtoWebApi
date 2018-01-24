@@ -56,9 +56,31 @@ namespace AKRestAPI.Controllers
         Result = $"Problems connecting to: BizTalk/EIS\r\n\r\n {ex}";
       }
       return Content(Result, "application/json");
-    } 
+    }
 
+    public ContentResult MCI()
+    {
+        string Endpoint = "https://esbtest.dhss.alaska.gov/mci/person/search/";
+        var Request = new StringContent("{ \"Registration\" : \"0600100001\" }", System.Text.UnicodeEncoding.UTF8, "application/json");
+        string Result = "";
+
+        try
+        {
+            var handler = new System.Net.Http.HttpClientHandler();
+            using (var httpClient = new HttpClient(handler))
+            {
+                var uri = Endpoint;
+                var response = httpClient.PostAsync(uri, Request).Result;
+                var json = response.Content.ReadAsStringAsync().Result;
+
+            Result = json;
+            }
+        }
+        catch (Exception ex)
+        {
+          Result = $"Problems connecting to: BizTalk/MCI\r\n\r\n {ex}";
+        }
+      return Content(Result, "application/json");
+    }
   }
-
-  
 }

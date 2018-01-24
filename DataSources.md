@@ -2,20 +2,38 @@
 
 This prototype search app makes use of a couple different Alaska data sources:
 
-0. MCI, a SOAP service
+1. MCI, a SOAP service
 1. ARIES Test, a Postgres database via direct connection
-2. EIS Test, mainframe data exposed via a web service.
+1. EIS Test, mainframe data exposed via a web service.
 
 More details on each below.
 
 ## MCI
 
-- Master Client Index
+Master Client Index (MCI)
+
 - *Available over VPN*
 - On-prem SOAP Service
 - our API wrapper: http://localhost:5000/mci/people/findByName?firstName=Greg&lastName=Allen
 - http://localhost:5000/mci/people/findByName?firstName=Johana&lastName=Leboeuf
 
+- *Available from Azure*
+- BizTalk-hosted REST Service
+- https://esbtest.dhss.alaska.gov/mci/person/search/
+- POST simple search object to query
+
+```json
+{
+    "Registration" : "0600100001"
+}
+```
+
+```json
+{
+    "FirstName" : "Major",
+    "LastName"  : "Snow"
+}
+```
 
 ## ARIES Test data
 
@@ -36,27 +54,29 @@ The ARIES IDs come from the MCI
 The `0600` number is the only parameter in that request
 
 ## LEGACY SQL Server
+
 http://localhost:5000/sql connects to MS SQL Server. This originates from testing Connx Linked Server.
 
-# A Data Story
+## A Data Story
 
-1.
+Client data not consistent across systems:
+
     - http://localhost:5000/mci/people/findByName?firstName=Johana&lastName=Leboeuf has ARIES ID 2400000003
     - https://protowebapi-staging.azurewebsites.net/aries?ids=2400000003
     - We lose this story in EIS
 
 TODO: we need to find some data that exists across all of these test systems!
 
-# AK self-signed certs
+## AK self-signed certs
 
 Currently we access EIS Webservice over a self-signed SSL Cert, which depends on an internal CA Cert.
 This is a little problematic for development:
 
 1. Untrusted requests fail by default in .Net.  Configuring the prototype to just ignore certificate warnings _only_ works in Windows environments because .Net has problems driving the underlying libs like `openssl` in OSX/Linux.
-2. We can add the AK CA Cert to our OSX development system keychain, which doesn't satisfy direct-chrome-browser-requests, but does satisfy the .Net runtime.
-3. I'm not yet sure if we can add a custom CA Cert into our Azure AppService/Hybrid environment, am talking to Azure support about this.
+1. We can add the AK CA Cert to our OSX development system keychain, which doesn't satisfy direct-chrome-browser-requests, but does satisfy the .Net runtime.
+1. I'm not yet sure if we can add a custom CA Cert into our Azure AppService/Hybrid environment, am talking to Azure support about this.
 
 ## How to handle AK CA Certs for now
 
 1. Local Dev: Add the custom CA Cert to your keychain.  Comment out the `handler.ServerCertificateCustomValidationCallback` line in `EISController.cs`
-2. Azure: Until we know if we can add a custom CA Cert, we need to make sure the handler ^^ is present in code so we can bypass the certificate error there.
+1. Azure: Until we know if we can add a custom CA Cert, we need to make sure the handler ^^ is present in code so we can bypass the certificate error there.
