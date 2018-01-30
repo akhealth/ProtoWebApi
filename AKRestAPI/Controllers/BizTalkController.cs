@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Net.Http;
 using System;
-using Newtonsoft.Json;
 
 namespace AKRestAPI.Controllers
 {
@@ -10,111 +10,108 @@ namespace AKRestAPI.Controllers
 
     public ContentResult Aries()
     {
-      string Result = "";
+      string result = "";
 
       try
       {
-        string AriesId = HttpContext.Request.Query["id"].ToString();
-        if (AriesId == "")
+        string ariesId = HttpContext.Request.Query["id"].ToString();
+        if (ariesId == "")
           throw new System.ArgumentException("Parameter ?id must be included");
 
-        string Endpoint = "https://esbtest.dhss.alaska.gov/aries/client/" + AriesId;
+        string endpoint = "https://esbtest.dhss.alaska.gov/aries/client/" + ariesId;
 
         var handler = new System.Net.Http.HttpClientHandler();
         using (var httpClient = new HttpClient(handler))
         {
-          var uri = Endpoint;
+          var uri = endpoint;
           var response = httpClient.GetAsync(uri).Result;
           var json = response.Content.ReadAsStringAsync().Result;
 
-          Result = json;
+          result = json;
         }
 
       }
       catch (Exception ex)
       {
-        Result = $"Problems connecting to: BizTalk/ARIES\r\n\r\n {ex}";
+        result = $"Problems connecting to: BizTalk/ARIES\r\n\r\n {ex}";
       }
-      return Content(Result, "application/json");
+      return Content(result, "application/json");
     }
 
     public ContentResult EIS()
     {
-      string Result = "";
+      string result = "";
 
       try
       {
-        string EisId = HttpContext.Request.Query["id"].ToString();
-        if (EisId == "")
+        string eisId = HttpContext.Request.Query["id"].ToString();
+        if (eisId == "")
           throw new System.ArgumentException("Parameter ?id must be included");
 
-        string Endpoint = "https://esbtest.dhss.alaska.gov/eis/client/" + EisId;
+        string endpoint = "https://esbtest.dhss.alaska.gov/eis/client/" + eisId;
 
         var handler = new System.Net.Http.HttpClientHandler();
         using (var httpClient = new HttpClient(handler))
         {
-          var uri = Endpoint;
+          var uri = endpoint;
           var response = httpClient.GetAsync(uri).Result;
           var json = response.Content.ReadAsStringAsync().Result;
 
-          Result = json;
+          result = json;
         }
 
       }
       catch (Exception ex)
       {
-        Result = $"Problems connecting to: BizTalk/EIS\r\n\r\n {ex}";
+        result = $"Problems connecting to: BizTalk/EIS\r\n\r\n {ex}";
       }
-      return Content(Result, "application/json");
+      return Content(result, "application/json");
     }
-
-    // \"FirstName\":\"Major\",\"LastName\" :\"Snow\"
-    // \"Registration\":\"0600100001\"
 
     public ContentResult MCI()
     {
 
-      string Result = "";
+      string result = "";
 
       try
       {
-        string Endpoint = "https://esbtest.dhss.alaska.gov/mci/person/search/";
+        string endpoint = "https://esbtest.dhss.alaska.gov/mci/person/search/";
 
-        string RegId = HttpContext.Request.Query["id"].ToString();
-        string FirstName = HttpContext.Request.Query["first"].ToString();
-        string LastName = HttpContext.Request.Query["last"].ToString();
-        var Request = new StringContent("");
+        string regId = HttpContext.Request.Query["id"].ToString();
+        string firstName = HttpContext.Request.Query["first"].ToString();
+        string lastName = HttpContext.Request.Query["last"].ToString();
+        var request = new StringContent("");
 
-        if ((FirstName == "" && LastName == "") && RegId == "")
+        if ((firstName == "" && lastName == "") && regId == "")
           throw new System.ArgumentException("Parameters (?first and ?last) OR ?id must be included");
 
-        if (RegId != "")
+        if (regId != "")
         {
           // {{ -> { in an interpolated string
-          string data = $"{{ \"Registration\":\"{ RegId }\" }}";
-          Request = new StringContent(data, System.Text.UnicodeEncoding.UTF8, "application/json");
+          string data = $"{{ \"Registration\":\"{ regId }\" }}";
+          request = new StringContent(data, System.Text.UnicodeEncoding.UTF8, "application/json");
           }
         else
         {
-          string data = $"{{ \"FirstName\":\"{ FirstName }\",\"LastName\" :\"{ LastName }\" }}";
-          Request = new StringContent(data, System.Text.UnicodeEncoding.UTF8, "application/json");
+          string data = $"{{ \"FirstName\":\"{ firstName }\",\"LastName\" :\"{ lastName }\" }}";
+          request = new StringContent(data, System.Text.UnicodeEncoding.UTF8, "application/json");
           }
 
         var handler = new System.Net.Http.HttpClientHandler();
         using (var httpClient = new HttpClient(handler))
         {
-          var uri = Endpoint;
-          var response = httpClient.PostAsync(uri, Request).Result;
+          var uri = endpoint;
+          var response = httpClient.PostAsync(uri, request).Result;
           var json = response.Content.ReadAsStringAsync().Result;
 
-          Result = json;
+          result = json;
         }
       }
       catch (Exception ex)
       {
-        Result = $"Problems connecting to: BizTalk/MCI\r\n\r\n {ex}";
+        result = $"Problems connecting to: BizTalk/MCI\r\n\r\n {ex}";
       }
-      return Content(Result, "application/json");
+      return Content(result, "application/json");
     }
   }
 }
