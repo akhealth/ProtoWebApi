@@ -79,6 +79,18 @@ namespace AKRestAPI
                         name: "eis",
                         template: "{controller=EIS}/{action=Index}"
                     );
+                    routes.MapRoute(
+                        name: "btaries",
+                        template: "{controller=BizTalk}/{action=Aries}"
+                    );
+                    routes.MapRoute(
+                        name: "bteis",
+                        template: "{controller=BizTalk}/{action=EIS}"
+                    );
+                    routes.MapRoute(
+                        name: "btmci",
+                        template: "{controller=BizTalk}/{action=MCI}"
+                    );
                 }  
             );
 
