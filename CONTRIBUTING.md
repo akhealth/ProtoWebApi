@@ -14,4 +14,4 @@ To begin new work, cut a new branch from `master` and name if after your work, m
 When new work is complete, set up a Pull Request (PR) from `feature1` to `master`. Discussion about, and approval of changes happens in the PR interface in VSTS.
 
 Once this new work is approved we complete the PR, merging the code.
-From here, our CI pipeline will build the new changes on the `master` branch.  Next, our CD pipeline will deploy the new work to the Azure AppService environment.
+From here, our CI pipeline will build the new changes on the `master` branch and then push to our open-source GitHub repo.  Next, our CD pipeline will deploy the new work to the Azure AppService environment.
